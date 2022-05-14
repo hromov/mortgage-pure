@@ -5,6 +5,7 @@ const server_path = 'https://back-dot-mortgage-test-347507.lm.r.appspot.com/bank
 
 const bankSelector = document.querySelector('#bank_selector');
 const infoBlock = document.querySelector('#info');
+const errorBlock = document.querySelector('#error_block');
 
 const loanField = document.querySelector('#loan');
 const downField = document.querySelector('#down');
@@ -87,24 +88,24 @@ const coloredSpan = (text) => {
 }
 
 const updateInfoTitle = () => {
-    const infoTitle = document.createElement('h2');
-    const bankName = selectedBank.getName();
-    const coloredBankName = coloredSpan(bankName);
-    infoTitle.innerText = 'Info for the ';
-    infoTitle.appendChild(coloredBankName);
     infoBlock.innerHTML = '';
-    infoBlock.appendChild(infoTitle);
+    errorBlock.innerText = '';
 
     const loan = Number(loanField.value);
     const down = Number(downField.value);
 
     const loanError = selectedBank.checkLoan(loan, down);
     if (loanError != '') {
-        const errorInfo = document.createElement('p');
-        errorInfo.innerText = loanError;
-        errorInfo.className = 'error';
-        infoBlock.appendChild(errorInfo);
+        errorBlock.innerText = loanError;
     } else {
+        const infoTitle = document.createElement('h2');
+        const bankName = selectedBank.getName();
+        const coloredBankName = coloredSpan(bankName);
+        infoTitle.innerText = '';
+        infoTitle.innerText = 'Info for the ';
+        infoTitle.appendChild(coloredBankName);
+        infoBlock.appendChild(infoTitle);
+
         const monthlyInfo = document.createElement('p');
         const initialLoan = loan - down;
         const montlyPayment = selectedBank.calcMonthly(initialLoan);
