@@ -1,7 +1,6 @@
 'use strict';
-import { httpRequest } from "./xhr.js";
 
-const server_path = 'https://back-dot-mortgage-test-347507.lm.r.appspot.com/banks';
+import { getBanks } from './api.js';
 
 const bankSelector = document.querySelector('#bank_selector');
 const infoBlock = document.querySelector('#info');
@@ -51,8 +50,8 @@ class Bank {
     }
 }
 
-const getBanks = () => {
-    httpRequest('GET', server_path, null)
+const init = () => {
+    getBanks()
         .then(resp => {
             const banks = Array.from(resp);
             if (banks && banks.length) {
@@ -133,4 +132,4 @@ downField.addEventListener('keyup', () => {
     updateInfoTitle();
 })
 
-getBanks();
+init();

@@ -202,3 +202,24 @@ form {
     display: grid;
     gap: var(--main-gap)
 }
+
+.table_container {
+    max-width: var(--abs-max);
+    padding: var(--main-gap);
+    overflow-x: scroll;
+}
+
+table {
+    width: 100%;
+    align-self: baseline;
+    font-size: clamp(1rem, 0.5rem + 2vw, 1.5rem);
+    border-collapse: collapse;
+    border: 1px solid #dee2e6;
+    margin: 0 auto;
+}
+
+table td, table th {
+    border: 1px solid #dee2e6;
+    padding: calc(var(--main-gap)/2);
+    text-align: center;
+}
