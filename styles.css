@@ -162,6 +162,12 @@ h2 {
     margin-bottom: var(--main-gap);
 }
 
+h3 {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: var(--main-gap);
+}
+
 p {
     font-size: 1.5rem;
     margin-bottom: var(--main-gap);
@@ -206,20 +212,65 @@ form {
 .table_container {
     max-width: var(--abs-max);
     padding: var(--main-gap);
-    overflow-x: scroll;
+    overflow-x: auto;
+    display: grid;
+    justify-items: center;
 }
 
 table {
-    width: 100%;
-    align-self: baseline;
     font-size: clamp(1rem, 0.5rem + 2vw, 1.5rem);
     border-collapse: collapse;
     border: 1px solid #dee2e6;
-    margin: 0 auto;
 }
 
-table td, table th {
+td, th {
     border: 1px solid #dee2e6;
     padding: calc(var(--main-gap)/2);
     text-align: center;
+}
+
+tr:hover td {
+    background-color: #FC5C7D;
+    cursor: pointer;
+}
+
+.modal_container {
+    position: fixed;
+    display: grid;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    place-items: center;
+    pointer-events: none;
+}
+
+.show {
+    pointer-events: all;
+    opacity: 100%;
+}
+
+.modal {
+    padding: var(--main-gap);
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.actions button {
+    padding: 0;
+    margin: 0;
+}
+
+.material-symbols-outlined {
+    font-size: 3rem !important;
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 48
 }

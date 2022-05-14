@@ -1,30 +1,37 @@
-'use strict';
+'use strict'
 
-const server_path = 'https://back-dot-mortgage-test-347507.lm.r.appspot.com/banks';
+const server_path = 'https://back-dot-mortgage-test-347507.lm.r.appspot.com/banks'
 
 const httpRequest = (method, url, data) => {
     const promise = new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
+        const xhr = new XMLHttpRequest()
 
-        xhr.open(method, url);
+        xhr.open(method, url)
 
-        xhr.responseType = 'json';
+        xhr.responseType = 'json'
 
         if (data) {
-            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('Content-Type', 'application/json')
         }
 
         xhr.onload = () => {
-            resolve(xhr.response);
+            resolve(xhr.response)
         }
 
         xhr.onerror = () => {
-            reject(xhr.reject);
+            reject(xhr.reject)
         }
 
-        xhr.send();
-    });
-    return promise;
+        xhr.send(JSON.stringify(data))
+    })
+    return promise
 }
 
-export const getBanks = () => httpRequest('GET', server_path, null);
+export const getBanks = () => httpRequest('GET', server_path, null)
+
+export const saveBank = (bank) => {
+    if (bank.id) {
+        return httpRequest('PUT', `${server_path}/${bank.id}`, bank)
+    }
+    return httpRequest('POST', server_path, bank)
+}
