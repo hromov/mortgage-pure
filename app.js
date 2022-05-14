@@ -6,19 +6,61 @@ const server_path = 'https://back-dot-mortgage-test-347507.lm.r.appspot.com/bank
 const bankSelector = document.querySelector('#bank_selector');
 const infoBlock = document.querySelector('#info');
 
-const loan = document.querySelector('#loan');
-const down = document.querySelector('#down');
+const loanField = document.querySelector('#loan');
+const downField = document.querySelector('#down');
 
 let banksList = [];
-let selectedBankIndex = null;
+let selectedBank = null;
+
+class Bank {
+    constructor(bank) {
+        this.maxLoan = bank.max_loan;
+        this.minDown = bank.min_down;
+        this.term = bank.term;
+        this.name = bank.name;
+        this.rate = bank.interest;
+    }
+
+    getName() {
+        return this.name;
+    }
+
+    toString() {
+        return `Bank can provide you with loan up to $${this.maxLoan} for ${this.term} month. Minimal down is ${this.minDown * 100}%`
+    }
+
+    calcMonthly = (initialLoan) => {
+        const top = initialLoan * (this.rate / 12) * Math.pow(1 + this.rate / 12, this.term);
+        const bot = Math.pow(1 + this.rate / 12, this.term) - 1;
+        return Math.round(top / bot);
+    }
+
+    checkLoan(loan, down) {
+        if (down > loan) {
+            return `It's not a loan when you give more then you take`;
+        }
+        if (loan > this.maxLoan) {
+            return `Bank can give you only $${this.maxLoan}`;
+        }
+        const currentDown = loan * this.minDown
+        if (down < currentDown) {
+            return `To receive $${loan} minimal down is $${currentDown}`;
+        }
+        return '';
+    }
+}
 
 const getBanks = () => {
     httpRequest('GET', server_path, null)
         .then(resp => {
             const banks = Array.from(resp);
-            banksList = banks;
-            console.log(banksList)
-            pushBanks(banks)
+            if (banks && banks.length) {
+                banksList = banks;
+                console.log(banksList);
+                pushBanks(banks);
+                selectedBank = new Bank(banksList[0]);
+                updateInfoTitle();
+            }
         })
         .catch(err => console.log(err));
 }
@@ -37,39 +79,57 @@ const pushBanks = (banks) => {
     });
 }
 
-const calcMonthly = (p, r, n) => {
-    const top = p * (r / 12) * Math.pow(1 + r/12, n);
-    const bot = Math.pow(1 + r/12, n) - 1;
-    return Math.round(top / bot);
+const coloredSpan = (text) => {
+    const span = document.createElement('span');
+    span.innerText = text;
+    span.className = 'colored c-text';
+    return span;
 }
 
 const updateInfoTitle = () => {
     const infoTitle = document.createElement('h2');
-    const coloredBankName = document.createElement('span');
-    console.log(banksList);
-    coloredBankName.innerText = banksList[selectedBankIndex].name;
-    coloredBankName.className = 'colored c-text';
+    const bankName = selectedBank.getName();
+    const coloredBankName = coloredSpan(bankName);
     infoTitle.innerText = 'Info for the ';
     infoTitle.appendChild(coloredBankName);
     infoBlock.innerHTML = '';
     infoBlock.appendChild(infoTitle);
 
-    const monthlyInfo = document.createElement('p');
-    const selectedBank = banksList[selectedBankIndex];
-    const loanAmount = loan.value - down.value;
-    monthlyInfo.innerText = `Monthly payment is $${calcMonthly(loanAmount, selectedBank.interest, selectedBank.term)}`;
-    
-    infoBlock.appendChild(monthlyInfo);
+    const loan = Number(loanField.value);
+    const down = Number(downField.value);
 
-    const bankInfo = document.createElement('p');
-    bankInfo.innerText = `Loan term is ${selectedBank.term}. Interest rate is ${selectedBank.interest * 100}%`
+    const loanError = selectedBank.checkLoan(loan, down);
+    if (loanError != '') {
+        const errorInfo = document.createElement('p');
+        errorInfo.innerText = loanError;
+        errorInfo.className = 'error';
+        infoBlock.appendChild(errorInfo);
+    } else {
+        const monthlyInfo = document.createElement('p');
+        const initialLoan = loan - down;
+        const montlyPayment = selectedBank.calcMonthly(initialLoan);
+        monthlyInfo.innerText = `Monthly payment is $${montlyPayment}`;
 
-    infoBlock.appendChild(bankInfo);
+        infoBlock.appendChild(monthlyInfo);
+
+        const bankInfo = document.createElement('p');
+        bankInfo.innerText = selectedBank.toString();
+
+        infoBlock.appendChild(bankInfo);
+    }
 }
 
 bankSelector.addEventListener('click', () => {
-    selectedBankIndex = bankSelector.value;
+    selectedBank = new Bank(banksList[bankSelector.value]);
     updateInfoTitle();
 });
+
+loanField.addEventListener('keyup', () => {
+    updateInfoTitle();
+})
+
+downField.addEventListener('keyup', () => {
+    updateInfoTitle();
+})
 
 getBanks();
