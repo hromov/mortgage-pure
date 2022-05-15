@@ -74,16 +74,16 @@ class BanksTable {
     changeBank(id) {
         if (id !== null) {
             this.currentBank = this.banks.filter(bank => bank.id == id)[0]
-            modal_field_interest.value = this.currentBank.interest
+            modal_field_interest.value = this.currentBank.interest * 100
             modal_field_name.value = this.currentBank.name
             modal_field_max_loan.value = this.currentBank.max_loan
-            modal_field_min_down.value = this.currentBank.min_down
+            modal_field_min_down.value = this.currentBank.min_down * 100
             modal_field_term.value = this.currentBank.term
         } else {
-            modal_field_interest.value = 0.1
+            modal_field_interest.value = 10
             modal_field_name.value = 'New Bank Name'
             modal_field_max_loan.value = 100000
-            modal_field_min_down.value = 0.3
+            modal_field_min_down.value = 30
             modal_field_term.value = 12
         }
         showModal()
@@ -93,9 +93,9 @@ class BanksTable {
         const bank = {
             id: this.currentBank ? this.currentBank.id : null,
             name: modal_field_name.value,
-            interest: parseFloat(modal_field_interest.value),
+            interest: parseFloat(modal_field_interest.value / 100),
             max_loan: parseInt(modal_field_max_loan.value),
-            min_down: parseFloat(modal_field_min_down.value),
+            min_down: parseFloat(modal_field_min_down.value / 100),
             term: parseInt(modal_field_term.value),
         }
         saveBank(bank).then(() => document.location.reload(true)).catch(err => showError(`Can't save bank error: ${err}`))
@@ -132,7 +132,11 @@ const showModal = () => {
 
 modal_inner.addEventListener('click', (e) => e.stopImmediatePropagation())
 
-modal_container.addEventListener('click', () => modal_container.classList.remove('show'))
+modal_container.addEventListener('click', () => {
+    if (confirm('All unsaved changes will be lost! Close the dialog?')) {
+        modal_container.classList.remove('show')
+    }
+})
 
 save_button.addEventListener('click', (e) => {
     e.preventDefault()
