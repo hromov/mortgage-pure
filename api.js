@@ -30,8 +30,12 @@ const httpRequest = (method, url, data) => {
 export const getBanks = () => httpRequest('GET', server_path, null)
 
 export const saveBank = (bank) => {
-    if (bank.id) {
+    if (bank.id !== null) {
         return httpRequest('PUT', `${server_path}/${bank.id}`, bank)
     }
     return httpRequest('POST', server_path, bank)
+}
+
+export const deleteBank = (id) => {
+    return httpRequest('DELETE', `${server_path}/${id}`, null)
 }

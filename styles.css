@@ -16,6 +16,8 @@
     --img-size: calc(var(--img-const) * 100vw);
     --img-max-size: calc(var(--img-const)*var(--abs-max));
     --img-font-size: 50vw;
+    --box-shadow: 0 5px 5px -3px #0003, 0 8px 10px 1px #00000024, 0 3px 14px 2px #0000001f;
+    --accent: #FC5C7D;
 }
 
 .colored {
@@ -41,6 +43,9 @@
 .error {
     color: red;
     margin-top: 5px;
+}
+.error:empty {
+    margin: 0;
 }
 
 .navbar {
@@ -103,14 +108,14 @@
 }
 
 .menu-links a:hover {
-    color: #f7ff00;
+    color: var(--accent);
     transition: all 0.3s ease;
 }
 
 .active .menu-links {
     top: 0;    
     transition: all 0.5s ease;
-    box-shadow: 0 3px 5px -1px #0003, 0 6px 10px #00000024, 0 1px 18px #0000001f;
+    box-shadow: var(--box-shadow);
 }
 .active .menu-links a {
     transition: all 0.3s ease;
@@ -220,17 +225,19 @@ form {
 table {
     font-size: clamp(1rem, 0.5rem + 2vw, 1.5rem);
     border-collapse: collapse;
-    border: 1px solid #dee2e6;
+    background-color: #424242;
+    box-shadow: var(--box-shadow);
+    width: 100%;
 }
 
 td, th {
-    border: 1px solid #dee2e6;
+    border-bottom: 1px solid #ffffff1f;
     padding: calc(var(--main-gap)/2);
     text-align: center;
 }
 
 tr:hover td {
-    background-color: #FC5C7D;
+    background-color: var(--accent);
     cursor: pointer;
 }
 
@@ -254,23 +261,36 @@ tr:hover td {
 
 .modal {
     padding: var(--main-gap);
+    box-shadow: var(--box-shadow);
 }
 
 .actions {
     display: flex;
     justify-content: space-between;
+    width: 100%;
 }
 
 .actions button {
     padding: 0;
     margin: 0;
+    font-size: 2rem;
+    transition: all 0.3s ease;
+}
+.actions button:hover {
+    color: var(--accent);
+    transition: all 0.3s ease;
 }
 
-.material-symbols-outlined {
-    font-size: 3rem !important;
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 48
+button:hover {
+    cursor: pointer;
+}
+
+#add {
+    align-self: end;
+}
+
+.id_col {
+    max-width: 2rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
