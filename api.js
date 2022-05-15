@@ -10,7 +10,7 @@ const httpRequest = (method, url, data) => {
 
         xhr.responseType = 'json'
 
-        if (data) {
+        if (data !== undefined) {
             xhr.setRequestHeader('Content-Type', 'application/json')
         }
 
@@ -27,15 +27,17 @@ const httpRequest = (method, url, data) => {
     return promise
 }
 
-export const getBanks = () => httpRequest('GET', server_path, null)
+export function getBanks() {
+    return httpRequest('GET', server_path, null)
+}
 
-export const saveBank = (bank) => {
+export function saveBank(bank) {
     if (bank.id !== null) {
         return httpRequest('PUT', `${server_path}/${bank.id}`, bank)
     }
     return httpRequest('POST', server_path, bank)
 }
 
-export const deleteBank = (id) => {
+export function deleteBank(id) {
     return httpRequest('DELETE', `${server_path}/${id}`, null)
 }

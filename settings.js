@@ -3,6 +3,7 @@
 import { getBanks, saveBank, deleteBank } from './api.js'
 
 const banks_table = document.querySelector('#banks_table')
+
 const modal_container = document.querySelector('#modal_container')
 const modal_inner = document.querySelector('#modal_inner')
 const modal_field_name = modal_inner.querySelector('#name')
@@ -18,16 +19,16 @@ const add_button = document.querySelector('#add')
 const errorBlock = document.querySelector('#error_block');
 
 const class_prefix = 'bank_'
-let banksTable = null
+
+let banksTable
 
 class BanksTable {
     constructor(banks) {
-        this.banks = Array.from(banks)
+        this.banks = [...banks]
         this.currentBank = null
     }
 
     get() {
-        console.log(this.banks)
         const table = document.createElement('table')
         const thead = document.createElement('thead')
         const tbody = document.createElement('tbody')
@@ -36,15 +37,14 @@ class BanksTable {
             keys = Object.keys(this.banks[0])
         }
         const headerRow = document.createElement('tr')
-        for (const key of keys) {
-            headerRow.appendChild(this.getCell(key, true))
-        }
+        keys.forEach((key) => headerRow.appendChild(createCell(key, true)))
+        
         thead.appendChild(headerRow)
-        for (const bank of this.banks) {
+        this.banks.forEach((bank) => {
             const row = document.createElement('tr')
-            keys.forEach(key => {
+            keys.forEach((key) => {
                 const val = bank[key]
-                const cell = this.getCell(val, false)
+                const cell = createCell(val, false)
                 row.appendChild(cell)
                 if (key === 'id') {
                     row.className = `${class_prefix}${val}`
@@ -53,31 +53,19 @@ class BanksTable {
                 }
             })
             tbody.appendChild(row)
-        }
+        })
         table.className = "mat-elevation-z8"
         table.append(thead, tbody)
         return table
     }
 
-    getCell(text, isHeader) {
-        const cell = isHeader ? document.createElement('th') : document.createElement('td')
-        const floatValue = parseFloat(text)
-        const intValue = parseInt(text)
-        if (floatValue && !intValue) {
-            cell.innerText = `${floatValue * 100}%`
-        } else {
-            cell.innerText = text
-        }
-        return cell
-    }
-
     changeBank(id) {
         if (id !== null) {
-            this.currentBank = this.banks.filter(bank => bank.id == id)[0]
-            modal_field_interest.value = this.currentBank.interest * 100
+            this.currentBank = this.banks.filter((bank) => bank.id === id)[0]
+            modal_field_interest.value = Math.round(this.currentBank.interest * 100)
             modal_field_name.value = this.currentBank.name
             modal_field_max_loan.value = this.currentBank.max_loan
-            modal_field_min_down.value = this.currentBank.min_down * 100
+            modal_field_min_down.value = Math.round(this.currentBank.min_down * 100)
             modal_field_term.value = this.currentBank.term
         } else {
             modal_field_interest.value = 10
@@ -98,37 +86,32 @@ class BanksTable {
             min_down: parseFloat(modal_field_min_down.value / 100),
             term: parseInt(modal_field_term.value),
         }
-        saveBank(bank).then(() => document.location.reload(true)).catch(err => showError(`Can't save bank error: ${err}`))
+        saveBank(bank).then(() => document.location.reload(true)).catch((err) => showModalError(`Can't save bank error: ${err}`))
     }
 
     deleteCurrent() {
-        if (this.currentBank && this.currentBank.id) {
-            deleteBank(this.currentBank.id).then(() => document.location.reload(true)).catch(err => showError(`Can't delete bank error: ${err}`))
+        if (this.currentBank !== undefined) {
+            deleteBank(this.currentBank.id).then(() => document.location.reload(true)).catch((err) => showModalError(`Can't delete bank error: ${err}`))
         }  else {
-            showError(`Bank has to be saved first`)
+            showModalError(`Bank has to be saved first`)
         }
         
     }
 }
 
-const init = () => {
-    getBanks()
-        .then(banks => {
-            banksTable = new BanksTable(banks)
-            const t = banksTable.get()
-            banks_table.prepend(t)
-            const rows = t.querySelector('tbody').querySelectorAll('tr')
-            rows.forEach(row => row.addEventListener('click', () => {
-                const bank_id = get_bank_id(row.className)
-                banksTable.changeBank(bank_id)
-            }))
-        })
-        .catch(err => console.log(err))
+const createCell = (text, isHeader = false) => {
+    const cell = isHeader ? document.createElement('th') : document.createElement('td')
+    const floatValue = parseFloat(text)
+    const intValue = parseInt(text, 10)
+    if (floatValue > 0 && intValue === 0) {
+        cell.innerText = `${Math.round(floatValue * 100)}%`
+    } else {
+        cell.innerText = text
+    }
+    return cell
 }
 
-const showModal = () => {
-    modal_container.classList.add('show')
-}
+const showModal = () => modal_container.classList.add('show')
 
 modal_inner.addEventListener('click', (e) => e.stopImmediatePropagation())
 
@@ -150,12 +133,27 @@ delete_button.addEventListener('click', (e) => {
 
 add_button.addEventListener('click', () => banksTable.changeBank(null))
 
-const get_bank_id = (class_name) => {
-    return class_name.replace(class_prefix, '')
-}
+const getBankID = (class_name) => class_name.replace(class_prefix, '')
 
-const showError = (text) => {
-    errorBlock.innerText = text;
+const showModalError = (text) => errorBlock.innerText = text
+
+const init = () => {
+    getBanks()
+        .then((banks) => {
+            banksTable = new BanksTable(banks)
+            const t = banksTable.get()
+            banks_table.appendChild(t)
+            const rows = t.querySelector('tbody').querySelectorAll('tr')
+            rows.forEach((row) => row.addEventListener('click', () => {
+                const bank_id = getBankID(row.className)
+                banksTable.changeBank(bank_id)
+            }))
+        })
+        .catch((err) => {
+            if (confirm(`Critical error: ${err}. Try to reload the page?`)) {
+                location.reload(true)
+            }
+        })
 }
 
 init()
