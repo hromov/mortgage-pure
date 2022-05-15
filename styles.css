@@ -12,10 +12,6 @@
     --abs-max: 1600px;
     --b-radius: 6px;
     --main-gap: 1.5rem;
-    --img-const: 0.8;
-    --img-size: calc(var(--img-const) * 100vw);
-    --img-max-size: calc(var(--img-const)*var(--abs-max));
-    --img-font-size: 50vw;
     --box-shadow: 0 5px 5px -3px #0003, 0 8px 10px 1px #00000024, 0 3px 14px 2px #0000001f;
     --accent: #FC5C7D;
 }
