@@ -1,139 +1,139 @@
-'use strict'
+'use strict';
 
-import { getBanks } from './api.js'
+import { getBanks } from './api.js';
 
-const bankSelector = document.querySelector('#bank_selector')
-const infoBlock = document.querySelector('#info')
-const errorBlock = document.querySelector('#error_block')
+const bankSelector = document.querySelector('#bank_selector');
+const infoBlock = document.querySelector('#info');
+const errorBlock = document.querySelector('#error_block');
 
-const loanField = document.querySelector('#loan')
-const downField = document.querySelector('#down')
+const loanField = document.querySelector('#loan');
+const downField = document.querySelector('#down');
 
-let banksList = []
-let selectedBank
+let banksList = [];
+let selectedBank;
 
 class Bank {
     constructor(bank) {
-        this.maxLoan = bank.max_loan
-        this.minDown = bank.min_down
-        this.term = bank.term
-        this.name = bank.name
-        this.rate = bank.interest
+        this.maxLoan = bank.max_loan;
+        this.minDown = bank.min_down;
+        this.term = bank.term;
+        this.name = bank.name;
+        this.rate = bank.interest;
     }
 
     getName() {
-        return this.name
+        return this.name;
     }
 
     toString() {
-        return `Bank can provide you with loan up to $${this.maxLoan} for ${this.term} month. Minimal down is ${this.minDown * 100}%`
+        return `Bank can provide you with loan up to $${this.maxLoan} for ${this.term} month. Minimal down is ${this.minDown * 100}%`;
     }
 
     calcMonthly = (initialLoan) => {
-        const top = initialLoan * (this.rate / 12) * ((1 + this.rate / 12) ** this.term)
-        const bot = (1 + this.rate / 12) ** this.term - 1
-        return Math.round(top / bot)
+        const top = initialLoan * (this.rate / 12) * ((1 + this.rate / 12) ** this.term);
+        const bot = (1 + this.rate / 12) ** this.term - 1;
+        return Math.round(top / bot);
     }
 
     checkLoan(loan, down) {
         if (down > loan) {
-            return `It's not a loan when you give more then you take`
+            return `It's not a loan when you give more then you take`;
         }
         if (loan > this.maxLoan) {
-            return `Bank can give you only $${this.maxLoan}`
+            return `Bank can give you only $${this.maxLoan}`;
         }
-        const currentDown = loan * this.minDown
+        const currentDown = loan * this.minDown;
         if (down < currentDown) {
-            return `To receive $${loan} minimal down is $${currentDown}`
+            return `To receive $${loan} minimal down is $${currentDown}`;
         }
-        return ''
+        return '';
     }
 }
 
 const pushBanks = (banks) => {
-    bankSelector.innerHTML = ''
+    bankSelector.innerHTML = '';
     banks.forEach((bank, index) => {
-        const option = document.createElement('option')
-        option.value = bank.id
-        option.text = bank.name
-        option.className = 'option'
+        const option = document.createElement('option');
+        option.value = bank.id;
+        option.text = bank.name;
+        option.className = 'option';
         if (index === 0) {
-            option.selected = true
+            option.selected = true;
         }
-        bankSelector.appendChild(option)
-    })
+        bankSelector.appendChild(option);
+    });
 }
 
 const coloredSpan = (text) => {
-    const span = document.createElement('span')
-    span.innerText = text
-    span.className = 'colored c-text'
-    return span
+    const span = document.createElement('span');
+    span.innerText = text;
+    span.className = 'colored c-text';
+    return span;
 }
 
 const updateInfoTitle = () => {
-    infoBlock.innerHTML = ''
-    errorBlock.innerText = ''
+    infoBlock.innerHTML = '';
+    errorBlock.innerText = '';
 
-    const loan = Number(loanField.value)
-    const down = Number(downField.value)
+    const loan = Number(loanField.value);
+    const down = Number(downField.value);
 
-    const loanError = selectedBank.checkLoan(loan, down)
+    const loanError = selectedBank.checkLoan(loan, down);
     if (loanError !== '') {
-        errorBlock.innerText = loanError
+        errorBlock.innerText = loanError;
     } else {
-        const infoTitle = document.createElement('h2')
-        const bankName = selectedBank.getName()
-        const coloredBankName = coloredSpan(bankName)
-        infoTitle.innerText = ''
-        infoTitle.innerText = 'Info for the '
-        infoTitle.appendChild(coloredBankName)
-        infoBlock.appendChild(infoTitle)
+        const infoTitle = document.createElement('h2');
+        const bankName = selectedBank.getName();
+        const coloredBankName = coloredSpan(bankName);
+        infoTitle.innerText = '';
+        infoTitle.innerText = 'Info for the ';
+        infoTitle.appendChild(coloredBankName);
+        infoBlock.appendChild(infoTitle);
 
-        const monthlyInfo = document.createElement('p')
-        const initialLoan = loan - down
-        const montlyPayment = selectedBank.calcMonthly(initialLoan)
-        monthlyInfo.innerText = `Monthly payment is $${montlyPayment}`
+        const monthlyInfo = document.createElement('p');
+        const initialLoan = loan - down;
+        const montlyPayment = selectedBank.calcMonthly(initialLoan);
+        monthlyInfo.innerText = `Monthly payment is $${montlyPayment}`;
 
-        infoBlock.appendChild(monthlyInfo)
+        infoBlock.appendChild(monthlyInfo);
 
-        const bankInfo = document.createElement('p')
-        bankInfo.innerText = selectedBank.toString()
+        const bankInfo = document.createElement('p');
+        bankInfo.innerText = selectedBank.toString();
 
-        infoBlock.appendChild(bankInfo)
+        infoBlock.appendChild(bankInfo);
     }
 }
 
 bankSelector.addEventListener('click', () => {
-    selectedBank = new Bank(banksList[bankSelector.value])
-    updateInfoTitle()
-})
+    selectedBank = new Bank(banksList[bankSelector.value]);
+    updateInfoTitle();
+});
 
 loanField.addEventListener('keyup', () => {
-    updateInfoTitle()
-})
+    updateInfoTitle();
+});
 
 downField.addEventListener('keyup', () => {
-    updateInfoTitle()
-})
+    updateInfoTitle();
+});
 
 const init = () => {
     getBanks()
         .then((resp) => {
-            const banks = [...resp]
+            const banks = [...resp];
             if (banks.length > 0) {
-                banksList = banks
-                console.log(banksList)
-                pushBanks(banks)
-                selectedBank = new Bank(banksList[0])
-                updateInfoTitle()
+                banksList = banks;
+                console.log(banksList);
+                pushBanks(banks);
+                selectedBank = new Bank(banksList[0]);
+                updateInfoTitle();
             }
         })
         .catch((err) => {
             if (confirm(`Critical error: ${err}. Try to reload the page?`)) {
-                location.reload(true)
+                location.reload(true);
             }
         })
 }
 
-init()
+init();
