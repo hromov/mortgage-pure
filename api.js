@@ -1,6 +1,6 @@
 'use strict';
 
-const server_path = 'https://back-dot-mortgage-test-347507.lm.r.appspot.com/banks';
+const server_path = 'https://v3-dot-mortgage-test-347507.lm.r.appspot.com/banks';
 
 const httpRequest = (method, url, data) => {
     const promise = new Promise((resolve, reject) => {
