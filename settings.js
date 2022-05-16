@@ -23,9 +23,10 @@ const class_prefix = 'bank_';
 let banksTable;
 
 class BanksTable {
+    #banks;
+    #currentBank;
     constructor(banks) {
-        this.banks = [...banks];
-        this.currentBank = null;
+        this.#banks = [...banks];
     }
 
     get() {
@@ -33,18 +34,18 @@ class BanksTable {
         const thead = document.createElement('thead');
         const tbody = document.createElement('tbody');
         let keys = [];
-        if (this.banks.length > 0) {
-            keys = Object.keys(this.banks[0]);
+        if (this.#banks.length > 0) {
+            keys = Object.keys(this.#banks[0]);
         }
         const headerRow = document.createElement('tr');
-        keys.forEach((key) => headerRow.appendChild(createCell(key, true)));
+        keys.forEach((key) => headerRow.appendChild(this.#createCell(key, true)));
         ;
         thead.appendChild(headerRow);
-        this.banks.forEach((bank) => {
+        this.#banks.forEach((bank) => {
             const row = document.createElement('tr');
             keys.forEach((key) => {
                 const val = bank[key];
-                const cell = createCell(val, false);
+                const cell = this.#createCell(val, false);
                 row.appendChild(cell);
                 if (key === 'id') {
                     row.className = `${class_prefix}${val}`;
@@ -61,12 +62,12 @@ class BanksTable {
 
     changeBank(id) {
         if (id !== null) {
-            this.currentBank = this.banks.filter((bank) => bank.id === id)[0];
-            modal_field_interest.value = Math.round(this.currentBank.interest * 100);
-            modal_field_name.value = this.currentBank.name;
-            modal_field_max_loan.value = this.currentBank.max_loan;
-            modal_field_min_down.value = Math.round(this.currentBank.min_down * 100);
-            modal_field_term.value = this.currentBank.term;
+            this.#currentBank = this.#banks.filter((bank) => bank.id === id)[0];
+            modal_field_interest.value = Math.round(this.#currentBank.interest * 100);
+            modal_field_name.value = this.#currentBank.name;
+            modal_field_max_loan.value = this.#currentBank.max_loan;
+            modal_field_min_down.value = Math.round(this.#currentBank.min_down * 100);
+            modal_field_term.value = this.#currentBank.term;
         } else {
             modal_field_interest.value = 10;
             modal_field_name.value = 'New Bank Name';
@@ -79,7 +80,7 @@ class BanksTable {
 
     saveCurrent() {
         const bank = {
-            id: this.currentBank ? this.currentBank.id : null,
+            id: this.#currentBank ? this.#currentBank.id : null,
             name: modal_field_name.value,
             interest: parseFloat(modal_field_interest.value / 100),
             max_loan: parseInt(modal_field_max_loan.value),
@@ -90,16 +91,15 @@ class BanksTable {
     }
 
     deleteCurrent() {
-        if (!(this.currentBank === undefined || this.currentBank === null)) {
-            deleteBank(this.currentBank.id).then(() => document.location.reload(true)).catch((err) => showModalError(`Can't delete bank error: ${err}`));
+        if (!(this.#currentBank === undefined || this.#currentBank === null)) {
+            deleteBank(this.#currentBank.id).then(() => document.location.reload(true)).catch((err) => showModalError(`Can't delete bank error: ${err}`));
         }  else {
             showModalError(`Bank has to be saved first`);
         }
-        ;
     }
-}
 
-const createCell = (text, isHeader = false) => {
+
+    #createCell(text, isHeader = false) {
     const cell = isHeader ? document.createElement('th') : document.createElement('td');
     const floatValue = parseFloat(text);
     const intValue = parseInt(text, 10);
@@ -109,6 +109,7 @@ const createCell = (text, isHeader = false) => {
         cell.innerText = text;
     }
     return cell;
+}
 }
 
 const showModal = () => modal_container.classList.add('show');

@@ -13,25 +13,30 @@ let banksList = [];
 let selectedBank;
 
 class Bank {
+    #maxLoan;
+    #minDown;
+    #term;
+    #bankName;
+    #rate;
     constructor(bank) {
-        this.maxLoan = bank.max_loan;
-        this.minDown = bank.min_down;
-        this.term = bank.term;
-        this.name = bank.name;
-        this.rate = bank.interest;
+        this.#maxLoan = bank.max_loan;
+        this.#minDown = bank.min_down;
+        this.#term = bank.term;
+        this.#bankName = bank.name;
+        this.#rate = bank.interest;
     }
 
-    getName() {
-        return this.name;
+    get name() {
+        return this.#bankName;
     }
 
     toString() {
-        return `Bank can provide you with loan up to $${this.maxLoan} for ${this.term} month. Minimal down is ${this.minDown * 100}%`;
+        return `Bank can provide you with loan up to $${this.#maxLoan} for ${this.#term} month. Minimal down is ${this.#minDown * 100}%`;
     }
 
     calcMonthly = (initialLoan) => {
-        const top = initialLoan * (this.rate / 12) * ((1 + this.rate / 12) ** this.term);
-        const bot = (1 + this.rate / 12) ** this.term - 1;
+        const top = initialLoan * (this.#rate / 12) * ((1 + this.#rate / 12) ** this.#term);
+        const bot = (1 + this.#rate / 12) ** this.#term - 1;
         return Math.round(top / bot);
     }
 
@@ -39,10 +44,10 @@ class Bank {
         if (down > loan) {
             return `It's not a loan when you give more then you take`;
         }
-        if (loan > this.maxLoan) {
-            return `Bank can give you only $${this.maxLoan}`;
+        if (loan > this.#maxLoan) {
+            return `Bank can give you only $${this.#maxLoan}`;
         }
-        const currentDown = loan * this.minDown;
+        const currentDown = loan * this.#minDown;
         if (down < currentDown) {
             return `To receive $${loan} minimal down is $${currentDown}`;
         }
@@ -83,7 +88,7 @@ const updateInfoTitle = () => {
         errorBlock.innerText = loanError;
     } else {
         const infoTitle = document.createElement('h2');
-        const bankName = selectedBank.getName();
+        const bankName = selectedBank.name;
         const coloredBankName = coloredSpan(bankName);
         infoTitle.innerText = '';
         infoTitle.innerText = 'Info for the ';
@@ -123,7 +128,6 @@ const init = () => {
             const banks = [...resp];
             if (banks.length > 0) {
                 banksList = banks;
-                console.log(banksList);
                 pushBanks(banks);
                 selectedBank = new Bank(banksList[0]);
                 updateInfoTitle();
