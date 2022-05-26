@@ -290,3 +290,7 @@ button:hover {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.react-menu {
+    display: flex;
+}
